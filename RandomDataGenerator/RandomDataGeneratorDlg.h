@@ -3,7 +3,12 @@
 //
 
 #pragma once
+#include "afxwin.h"
+#include "ConvertUtility.h"
+#include "CommonUtility.h"
+#include <vector>
 
+using namespace std;
 
 // CRandomDataGeneratorDlg dialog
 class CRandomDataGeneratorDlg : public CDialogEx
@@ -31,4 +36,22 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CString m_editInputFileName;
+	CStatusBar m_Statusbar;
+
+private:
+	void InitStatusbar();
+	void InitParameters();
+
+public:
+	long m_editFrames;
+	long m_editSamples;
+	CString m_prjPath;
+	vector<CString> m_inputData;
+	CComboBox m_cboFingertips;
+	afx_msg void OnBnClickedBtnSelInput();
+	afx_msg void OnBnClickedOk();
+	CString m_editPrjName;
+	afx_msg void OnBnClickedBtnCreat();
 };
