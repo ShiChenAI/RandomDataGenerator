@@ -58,6 +58,8 @@ CRandomDataGeneratorDlg::CRandomDataGeneratorDlg(CWnd* pParent /*=NULL*/)
 	, m_editFrames(0)
 	, m_editSamples(0)
 	, m_editPrjName(_T(""))
+	, m_randomType(0)
+	, m_editSuccessions(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -70,6 +72,9 @@ void CRandomDataGeneratorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_SAMPLES, m_editSamples);
 	DDX_Control(pDX, IDC_CBO_FINGERTIPS, m_cboFingertips);
 	DDX_Text(pDX, IDC_EDIT_PRJ_NAME, m_editPrjName);
+	DDX_Radio(pDX, IDC_RAD_SINGLE, m_randomType);
+	//  DDX_Text(pDX, IDC_EDIT_SUCCESSIONS, m_editSuccessions);
+	DDX_Text(pDX, IDC_EDIT_SUCCESSIONS, m_editSuccessions);
 }
 
 BEGIN_MESSAGE_MAP(CRandomDataGeneratorDlg, CDialogEx)
@@ -79,6 +84,8 @@ BEGIN_MESSAGE_MAP(CRandomDataGeneratorDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_SEL_INPUT, &CRandomDataGeneratorDlg::OnBnClickedBtnSelInput)
 	ON_BN_CLICKED(IDOK, &CRandomDataGeneratorDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BTN_CREAT, &CRandomDataGeneratorDlg::OnBnClickedBtnCreat)
+	ON_BN_CLICKED(IDC_RAD_SINGLE, &CRandomDataGeneratorDlg::OnBnClickedRadSingle)
+	ON_BN_CLICKED(IDC_RAD_SUCCESSION, &CRandomDataGeneratorDlg::OnBnClickedRadSuccession)
 END_MESSAGE_MAP()
 
 
@@ -208,68 +215,194 @@ void CRandomDataGeneratorDlg::OnBnClickedBtnSelInput()
 void CRandomDataGeneratorDlg::OnBnClickedOk()
 {
 	UpdateData(TRUE);
-	long startRand = 0;
-	long endRand = m_editFrames - 1;
 
-	for (int k = 0; k < m_editSamples; k++)
+	if (m_randomType == 0)
 	{
-		CString strStatus = TEXT("");
-		long sampleNo = k + 1;
-		strStatus.Format(TEXT("Samples generating: %d of %d"), sampleNo, m_editSamples);
-		m_Statusbar.SetPaneText(0, strStatus);
-		vector<long> selFrames;
-		while (endRand < m_inputData.size())
+		for (int k = 0; k < m_editSamples; k++)
 		{
-			long selFrame = CCommonUtility::GetRandomNumber(startRand, endRand);
-			selFrames.push_back(selFrame);
-			startRand += m_editFrames;
-			endRand += m_editFrames;
-		}
-
-		vector<long>::iterator framesIter;
-		for (framesIter = selFrames.begin(); framesIter != selFrames.end(); framesIter++)
-		{
-			long selFrame = *framesIter;
-			vector<double> splitResult;
-			CCommonUtility::StringSplit(m_inputData[selFrame], splitResult);
-			vector<long> randFingertips;
-			CString strCurSel = TEXT("");
-			m_cboFingertips.GetLBText(m_cboFingertips.GetCurSel(), strCurSel);
-			CCommonUtility::GetRandomNumber(0, 4, CConvertUtility::ToLong(strCurSel), randFingertips);
-
-			vector<long>::iterator fingerIter;
-			for (fingerIter = randFingertips.begin(); fingerIter != randFingertips.end(); fingerIter++)
+			long startRand = 1;
+			long endRand = m_editFrames;
+			CString strStatus = TEXT("");
+			long sampleNo = k + 1;
+			strStatus.Format(TEXT("Samples generating: %d of %d"), sampleNo, m_editSamples);
+			m_Statusbar.SetPaneText(0, strStatus);
+			vector<long> selFrames;
+			while (endRand < m_inputData.size())
 			{
-				splitResult[(*fingerIter) * 3] = 0;
-				splitResult[(*fingerIter) * 3 + 1] = 0;
-				splitResult[(*fingerIter) * 3 + 2] = 0;
+				long selFrame = CCommonUtility::GetRandomNumber(startRand, endRand);
+				selFrames.push_back(selFrame);
+				startRand += m_editFrames;
+				endRand += m_editFrames;
 			}
 
-			CString strFrameResult = TEXT("");
-			for (int i = 0; i < splitResult.size(); i++)
+			vector<long>::iterator framesIter;
+			for (framesIter = selFrames.begin(); framesIter != selFrames.end(); framesIter++)
 			{
-				strFrameResult += CConvertUtility::ToString(splitResult[i], 8);
-				if (i != splitResult.size() - 1)
+				long selFrame = *framesIter;
+				vector<double> selFrameSplitResult;
+				CCommonUtility::StringSplit(m_inputData[selFrame], selFrameSplitResult);
+
+				// Get last frame data
+				long lastFrame = selFrame - 1;
+				vector<double> lastFrameSplitResult;
+				CCommonUtility::StringSplit(m_inputData[lastFrame], lastFrameSplitResult);
+
+				vector<long> randFingertips;
+				CString strCurSel = TEXT("");
+				m_cboFingertips.GetLBText(m_cboFingertips.GetCurSel(), strCurSel);
+				//if (m_randomType = 0)
+				//{
+				//	randFingertips.push_back(0);
+				//	randFingertips.push_back(1);
+				//	randFingertips.push_back(2);
+				//	randFingertips.push_back(3);
+				//	randFingertips.push_back(4);
+				//}
+				//else
+				//{
+				//	CCommonUtility::GetRandomNumber(0, 4, CConvertUtility::ToLong(strCurSel), randFingertips);
+				//}
+
+				randFingertips.push_back(0);
+				randFingertips.push_back(1);
+				randFingertips.push_back(2);
+				randFingertips.push_back(3);
+				randFingertips.push_back(4);
+
+				vector<long>::iterator fingerIter;
+				for (fingerIter = randFingertips.begin(); fingerIter != randFingertips.end(); fingerIter++)
 				{
-					strFrameResult += TEXT(" ");
+					selFrameSplitResult[(*fingerIter) * 3] = lastFrameSplitResult[(*fingerIter) * 3];
+					selFrameSplitResult[(*fingerIter) * 3 + 1] = lastFrameSplitResult[(*fingerIter) * 3 + 1];
+					selFrameSplitResult[(*fingerIter) * 3 + 2] = lastFrameSplitResult[(*fingerIter) * 3 + 2];
+				}
+
+				CString strFrameResult = TEXT("");
+				for (int i = 0; i < selFrameSplitResult.size(); i++)
+				{
+					strFrameResult += CConvertUtility::ToString(selFrameSplitResult[i], 8);
+					if (i != selFrameSplitResult.size() - 1)
+					{
+						strFrameResult += TEXT(" ");
+					}
+				}
+
+				m_inputData[selFrame] = strFrameResult;
+			}
+
+			SYSTEMTIME sys;
+			GetLocalTime(&sys);
+			CString saveFileName = TEXT("");
+			saveFileName.Format(TEXT("%d.txt"), sampleNo);
+			CString saveFilePath = m_prjPath;
+			saveFilePath += TEXT("\\");
+			saveFilePath += saveFileName;
+			CCommonUtility::SaveTextFile(saveFilePath, m_inputData);
+
+			m_inputData.clear();
+			CCommonUtility::LoadTextFile(m_editInputFileName, m_inputData);
+		}
+	}
+	else if (m_randomType == 1)
+	{
+		for (int k = 0; k < m_editSamples; k++)
+		{
+			long startRand = 1;
+			long endRand = m_editFrames;
+			CString strStatus = TEXT("");
+			long sampleNo = k + 1;
+			strStatus.Format(TEXT("Samples generating: %d of %d"), sampleNo, m_editSamples);
+			m_Statusbar.SetPaneText(0, strStatus);
+			vector<long> selFrames;
+			while (endRand < m_inputData.size())
+			{
+				long selFrame = CCommonUtility::GetRandomNumber(startRand, endRand);
+				selFrames.push_back(selFrame);
+				startRand += m_editFrames;
+				endRand += m_editFrames;
+			}
+
+			vector<long>::iterator framesIter;
+			for (framesIter = selFrames.begin(); framesIter != selFrames.end(); framesIter++)
+			{
+				long selFrame = *framesIter;
+				long endSelFrame = selFrame + m_editSuccessions;
+
+				for (; selFrame <= endSelFrame; selFrame++)
+				{
+					//selFrame += s;
+
+					if (selFrame >= m_inputData.size())
+					{
+						break;
+					}
+
+					vector<double> selFrameSplitResult;
+					CCommonUtility::StringSplit(m_inputData[selFrame], selFrameSplitResult);
+
+					// Get last frame data
+					long lastFrame = selFrame - 1;
+					vector<double> lastFrameSplitResult;
+					CCommonUtility::StringSplit(m_inputData[lastFrame], lastFrameSplitResult);
+
+					vector<long> randFingertips;
+					CString strCurSel = TEXT("");
+					m_cboFingertips.GetLBText(m_cboFingertips.GetCurSel(), strCurSel);
+					//if (m_randomType = 0)
+					//{
+					//	randFingertips.push_back(0);
+					//	randFingertips.push_back(1);
+					//	randFingertips.push_back(2);
+					//	randFingertips.push_back(3);
+					//	randFingertips.push_back(4);
+					//}
+					//else
+					//{
+					//	CCommonUtility::GetRandomNumber(0, 4, CConvertUtility::ToLong(strCurSel), randFingertips);
+					//}
+
+					randFingertips.push_back(0);
+					randFingertips.push_back(1);
+					randFingertips.push_back(2);
+					randFingertips.push_back(3);
+					randFingertips.push_back(4);
+
+					vector<long>::iterator fingerIter;
+					for (fingerIter = randFingertips.begin(); fingerIter != randFingertips.end(); fingerIter++)
+					{
+						selFrameSplitResult[(*fingerIter) * 3] = lastFrameSplitResult[(*fingerIter) * 3];
+						selFrameSplitResult[(*fingerIter) * 3 + 1] = lastFrameSplitResult[(*fingerIter) * 3 + 1];
+						selFrameSplitResult[(*fingerIter) * 3 + 2] = lastFrameSplitResult[(*fingerIter) * 3 + 2];
+					}
+
+					CString strFrameResult = TEXT("");
+					for (int i = 0; i < selFrameSplitResult.size(); i++)
+					{
+						strFrameResult += CConvertUtility::ToString(selFrameSplitResult[i], 8);
+						if (i != selFrameSplitResult.size() - 1)
+						{
+							strFrameResult += TEXT(" ");
+						}
+					}
+
+					m_inputData[selFrame] = strFrameResult;
+
 				}
 			}
 
-			m_inputData[selFrame] = strFrameResult;
+			SYSTEMTIME sys;
+			GetLocalTime(&sys);
+			CString saveFileName = TEXT("");
+			saveFileName.Format(TEXT("%d.txt"), sampleNo);
+			CString saveFilePath = m_prjPath;
+			saveFilePath += TEXT("\\");
+			saveFilePath += saveFileName;
+			CCommonUtility::SaveTextFile(saveFilePath, m_inputData);
+
+			m_inputData.clear();
+			CCommonUtility::LoadTextFile(m_editInputFileName, m_inputData);
 		}
-
-		SYSTEMTIME sys;
-		GetLocalTime(&sys);
-		CString saveFileName = TEXT("");
-		saveFileName.Format(TEXT("%4d-%02d-%02d-%02d-%02d-%02d-%d.txt"), sys.wYear, sys.wMonth, sys.wDay, sys.wHour, sys.wMinute, sys.wSecond, sampleNo);
-		CString saveFilePath = m_prjPath;
-		saveFilePath += TEXT("\\");
-		saveFilePath += saveFileName;
-		CCommonUtility::SaveTextFile(saveFilePath, m_inputData);
 	}
-
-	m_inputData.clear();
-	CCommonUtility::LoadTextFile(m_editInputFileName, m_inputData);
 }
 
 
@@ -300,4 +433,16 @@ void CRandomDataGeneratorDlg::OnBnClickedBtnCreat()
 		CCommonUtility::LoadTextFile(m_editInputFileName, m_inputData);
 		return;
 	}
+}
+
+
+void CRandomDataGeneratorDlg::OnBnClickedRadSingle()
+{
+	GetDlgItem(IDC_EDIT_SUCCESSIONS)->EnableWindow(FALSE);
+}
+
+
+void CRandomDataGeneratorDlg::OnBnClickedRadSuccession()
+{
+	GetDlgItem(IDC_EDIT_SUCCESSIONS)->EnableWindow(TRUE);
 }

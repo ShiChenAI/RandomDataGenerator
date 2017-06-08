@@ -54,4 +54,11 @@ public:
 	afx_msg void OnBnClickedOk();
 	CString m_editPrjName;
 	afx_msg void OnBnClickedBtnCreat();
+private:
+	int m_randomType;
+public:
+	afx_msg void OnBnClickedRadSingle();
+//	CString m_editSuccessions;
+	afx_msg void OnBnClickedRadSuccession();
+	long m_editSuccessions;
 };

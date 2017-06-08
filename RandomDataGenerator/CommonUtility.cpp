@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "CommonUtility.h"
 
 
@@ -192,7 +192,20 @@ void CCommonUtility::StringSplit(const CString & text, vector<double>& result)
 
 long CCommonUtility::GetRandomNumber(long start, long end)
 {
-	return (rand() % (end - start + 1)) + start;
+	//srand((int)time(NULL));
+	////int rr = rand();
+	////return (rr % (end - start + 1)) + start;
+	//long rr = start + (end - start)*rand() / (RAND_MAX + 1.0);
+	//return rr;
+
+	std::vector<long> vl(end - start + 1); 
+	for (long i = 0; i<(end - start + 1); ++i)
+	{
+		vl[i] = i;
+	}
+	std::random_shuffle(vl.begin(), vl.end());
+	long rr = (*vl.begin());
+	return start + rr;
 }
 
 void CCommonUtility::GetRandomNumber(long start, long end, long count, vector<long>& result)

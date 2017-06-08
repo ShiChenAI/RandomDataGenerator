@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "ConvertUtility.h"
+#include <algorithm>
 
 using namespace std;
 
